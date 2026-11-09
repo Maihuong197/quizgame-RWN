@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Men's Day RWN - Quiz Game</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎉</text></svg>">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-950/70 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5 font-extrabold text-xl tracking-tight text-white group">
+        <span class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">🎉</span>
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">Men's Day RWN</span>
+      </a>
+
+      <div class="flex items-center gap-3">
+        <!-- Sound Toggle Button -->
+        <button id="soundToggleBtn" title="Bật/Tắt âm thanh" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-lg">
+          🔊
+        </button>
+
+        <!-- Admin Portal Link -->
+        <a href="/admin" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-indigo-200 border border-indigo-500/30 font-medium text-sm transition-all shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          Trang Admin
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-1 flex flex-col justify-center">
+
+    <!-- SCREEN 1: WELCOME & START -->
+    <section id="welcomeScreen" class="w-full">
+      <div class="relative overflow-hidden rounded-3xl bg-slate-800/80 border border-slate-700/60 p-6 md:p-10 shadow-2xl backdrop-blur-xl">
+        <div class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="text-center max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+            🎉 Chúc Mừng Ngày Quốc Tế Nam Giới
+          </div>
+          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Chúc mừng ngày <br>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">
+              Men's Day RWN! 🎉
+            </span>
+          </h1>
+          <p class="text-slate-400 text-sm md:text-base">
+            Cùng tham gia trả lời các câu hỏi trắc nghiệm thú vị, tích lũy điểm số và ghi tên mình lên bảng vàng vinh danh!
+          </p>
+        </div>
+
+        <!-- Start Form -->
+        <form id="startForm" class="mt-8 max-w-md mx-auto space-y-5">
+          <div>
+            <label for="playerNameInput" class="block text-sm font-medium text-slate-300 mb-1.5">
+              Tên / Biệt danh của bạn:
+            </label>
+            <input 
+              type="text" 
+              id="playerNameInput" 
+              placeholder="Ví dụ: Hoàng Long, Minh Hương..." 
+              required
+              maxlength="30"
+              class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner text-base"
+            >
+          </div>
+
+          <!-- Quiz Options -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="questionLimitSelect" class="block text-xs font-medium text-slate-400 mb-1">
+                Số lượng câu:
+              </label>
+              <select id="questionLimitSelect" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="5">5 câu (Nhanh)</option>
+                <option value="10" selected>10 câu (Tiêu chuẩn)</option>
+                <option value="0">Tất cả câu hỏi</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="timerToggleSelect" class="block text-xs font-medium text-slate-400 mb-1">
+                Thời gian mỗi câu:
+              </label>
+              <select id="timerToggleSelect" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="15" selected>15 giây (Kịch tính)</option>
+                <option value="30">30 giây (Thư thả)</option>
+                <option value="0">Không giới hạn</option>
+              </select>
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-600 text-white font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <span>Bắt Đầu Ngay</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Leaderboard Preview Toggle -->
+        <div class="mt-8 pt-6 border-t border-slate-700/60 flex justify-center">
+          <button id="viewLeaderboardBtn" class="text-sm font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 transition-colors">
+            🏆 Xem Bảng Xếp Hạng Top Người Chơi
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: GAMEPLAY -->
+    <section id="gameplayScreen" class="w-full hidden">
+      <!-- Game Status Bar -->
+      <div class="flex items-center justify-between gap-4 mb-4 bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60 backdrop-blur">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center border border-indigo-500/30">
+            <span id="playerAvatarInitial">U</span>
+          </div>
+          <div>
+            <div id="displayPlayerName" class="font-bold text-sm text-white truncate max-w-[140px] md:max-w-xs">Người chơi</div>
+            <div class="text-xs text-indigo-400 font-semibold flex items-center gap-1">
+              Điểm: <span id="currentScore">0</span>
+              <span id="streakBadge" class="hidden ml-2 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">🔥 x<span id="streakCount">1</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer Circle/Bar -->
+        <div id="timerContainer" class="flex items-center gap-2">
+          <div class="flex flex-col items-end">
+            <span class="text-xs text-slate-400">Thời gian</span>
+            <span id="timerText" class="text-xl font-extrabold text-amber-400 font-mono">15s</span>
+          </div>
+        </div>
+
+        <div class="text-right">
+          <span class="text-xs text-slate-400">Tiến độ</span>
+          <div class="text-sm font-extrabold text-white">
+            <span id="currentQuestionNum">1</span>/<span id="totalQuestionsNum">10</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Progress Bar -->
+      <div class="w-full bg-slate-800 h-2 rounded-full mb-6 overflow-hidden border border-slate-700/40">
+        <div id="quizProgressBar" class="h-full bg-gradient-to-r from-indigo-500 to-pink-500 transition-all duration-300" style="width: 10%;"></div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="rounded-3xl bg-slate-800/90 border border-slate-700/70 p-6 md:p-8 shadow-2xl backdrop-blur">
+        <div class="flex items-center justify-between mb-4">
+          <span class="px-3 py-1 rounded-full bg-slate-700/60 border border-slate-600/50 text-slate-300 text-xs font-semibold">
+            Câu số <span id="questionBadgeNum">1</span>
+          </span>
+          <span class="text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+            +<span id="questionPointsVal">10</span> điểm
+          </span>
+        </div>
+
+        <!-- Question Content -->
+        <h2 id="questionText" class="text-xl md:text-2xl font-bold text-white mb-6 leading-snug">
+          Nội dung câu hỏi đang tải...
+        </h2>
+
+        <!-- Question Image (if present) -->
+        <div id="questionImageContainer" class="hidden mb-6 flex justify-center">
+          <div class="relative max-w-md w-full max-h-72 overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/80 p-1.5 shadow-lg">
+            <img id="questionImage" src="" alt="Hình ảnh câu hỏi" class="w-full max-h-64 object-contain rounded-xl mx-auto">
+          </div>
+        </div>
+
+        <!-- Options Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-6" id="optionsGrid">
+          <!-- Option A -->
+          <button data-option="A" class="option-btn group text-left p-4 rounded-2xl bg-slate-900/80 hover:bg-slate-750 border border-slate-700/70 flex items-center gap-3.5 text-slate-200 hover:text-white transition-all">
+            <span class="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-400 font-bold flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">A</span>
+            <span class="option-text font-medium text-sm md:text-base flex-1">Đáp án A</span>
+          </button>
+          <!-- Option B -->
+          <button data-option="B" class="option-btn group text-left p-4 rounded-2xl bg-slate-900/80 hover:bg-slate-750 border border-slate-700/70 flex items-center gap-3.5 text-slate-200 hover:text-white transition-all">
+            <span class="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">B</span>
+            <span class="option-text font-medium text-sm md:text-base flex-1">Đáp án B</span>
+          </button>
+          <!-- Option C -->
+          <button data-option="C" class="option-btn group text-left p-4 rounded-2xl bg-slate-900/80 hover:bg-slate-750 border border-slate-700/70 flex items-center gap-3.5 text-slate-200 hover:text-white transition-all">
+            <span class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 font-bold flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">C</span>
+            <span class="option-text font-medium text-sm md:text-base flex-1">Đáp án C</span>
+          </button>
+          <!-- Option D -->
+          <button data-option="D" class="option-btn group text-left p-4 rounded-2xl bg-slate-900/80 hover:bg-slate-750 border border-slate-700/70 flex items-center gap-3.5 text-slate-200 hover:text-white transition-all">
+            <span class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">D</span>
+            <span class="option-text font-medium text-sm md:text-base flex-1">Đáp án D</span>
+          </button>
+        </div>
+
+        <!-- Feedback & Explanation Box (shows after answering) -->
+        <div id="explanationBox" class="hidden p-4 rounded-2xl bg-slate-900/90 border border-slate-700 mb-6 transition-all">
+          <div class="flex items-start gap-2.5">
+            <span id="feedbackIcon" class="text-xl">💡</span>
+            <div>
+              <div id="feedbackTitle" class="font-bold text-sm text-white mb-1">Giải thích chi tiết:</div>
+              <p id="explanationText" class="text-xs md:text-sm text-slate-300 leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next / Finish Action -->
+        <div class="flex justify-end">
+          <button id="nextQuestionBtn" class="hidden px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 hover:scale-105 transition-all items-center gap-2">
+            <span id="nextBtnLabel">Câu tiếp theo</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: RESULTS & REVIEW -->
+    <section id="resultsScreen" class="w-full hidden">
+      <div class="rounded-3xl bg-slate-800/90 border border-slate-700/70 p-6 md:p-10 shadow-2xl backdrop-blur">
+        <!-- Results Header -->
+        <div class="text-center max-w-md mx-auto mb-8">
+          <div id="resultBadgeIcon" class="text-6xl mb-3 animate-bounce">🏆</div>
+          <h2 id="resultTitle" class="text-3xl font-black text-white mb-2">Hoàn Thành Xuất Sắc!</h2>
+          <p id="resultSubtitle" class="text-slate-400 text-sm">Chúc mừng bạn đã hoàn thành phần thi của mình.</p>
+        </div>
+
+        <!-- Score Overview Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-8">
+          <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/70 text-center">
+            <span class="text-xs text-slate-400 block mb-1">Tổng điểm</span>
+            <span id="finalScoreVal" class="text-2xl md:text-3xl font-black text-indigo-400">0</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/70 text-center">
+            <span class="text-xs text-slate-400 block mb-1">Số câu đúng</span>
+            <span class="text-2xl md:text-3xl font-black text-emerald-400">
+              <span id="correctCountVal">0</span>/<span id="totalAttemptedVal">0</span>
+            </span>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/70 text-center">
+            <span class="text-xs text-slate-400 block mb-1">Tỉ lệ chính xác</span>
+            <span id="accuracyVal" class="text-2xl md:text-3xl font-black text-purple-400">0%</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/70 text-center">
+            <span class="text-xs text-slate-400 block mb-1">Thời gian</span>
+            <span id="timeSpentVal" class="text-2xl md:text-3xl font-black text-amber-400">0s</span>
+          </div>
+        </div>
+
+        <!-- Buttons: Play Again & Review -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mb-8">
+          <button id="playAgainBtn" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/30 hover:scale-105 transition-all flex items-center gap-2">
+            🔄 Chơi lại lượt mới
+          </button>
+          <button id="toggleReviewBtn" class="px-6 py-3.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold text-sm transition-all flex items-center gap-2">
+            📋 Xem lại đáp án chi tiết
+          </button>
+          <button id="showLeaderboardFromResultsBtn" class="px-6 py-3.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-amber-300 font-semibold text-sm transition-all flex items-center gap-2">
+            🏆 Bảng xếp hạng
+          </button>
+        </div>
+
+        <!-- Detailed Review List (Hidden by default) -->
+        <div id="reviewContainer" class="hidden space-y-4 pt-6 border-t border-slate-700/60">
+          <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <span>📝</span> Chi tiết từng câu hỏi:
+          </h3>
+          <div id="reviewList" class="space-y-4">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL: LEADERBOARD -->
+    <div id="leaderboardModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-slate-800 border border-slate-700 rounded-3xl max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in">
+        <div class="p-6 border-b border-slate-700/60 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">🏆</span>
+            <div>
+              <h3 class="font-extrabold text-lg text-white">Bảng Xếp Hạng</h3>
+              <p class="text-xs text-slate-400">Top người chơi có điểm số cao nhất</p>
+            </div>
+          </div>
+          <button id="closeLeaderboardModalBtn" class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center justify-center font-bold">
+            ✕
+          </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto flex-1 space-y-2.5" id="leaderboardModalList">
+          <div class="text-center py-8 text-slate-400 text-sm">Đang tải bảng xếp hạng...</div>
+        </div>
+
+        <div class="p-4 border-t border-slate-700/60 bg-slate-900/50 flex justify-end">
+          <button id="closeLeaderboardBottomBtn" class="px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+    Men's Day RWN © 2026 • Hệ thống trò chơi trắc nghiệm tương tác
+  </footer>
+
+  <!-- Player Script -->
+  <script src="/js/player.js"></script>
+</body>
+</html>

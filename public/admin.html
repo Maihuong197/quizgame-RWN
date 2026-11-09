@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal - Quản Trị Hệ Thống Trắc Nghiệm</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- QRCode.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/admin" class="flex items-center gap-2.5 font-black text-xl text-white">
+          <span class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center text-lg shadow-md shadow-indigo-500/20">⚙️</span>
+          <span>Admin<span class="text-indigo-400">Portal</span></span>
+        </a>
+        <span class="hidden md:inline-block px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-xs font-medium">
+          Quản lý câu hỏi & hệ thống
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Go to player page -->
+        <a href="/" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs md:text-sm font-medium border border-slate-700 transition-all">
+          <span>🎮 Mở Trang Người Chơi</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+
+        <!-- Logout button (hidden when logged out) -->
+        <button id="adminLogoutBtn" class="hidden px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs md:text-sm font-medium transition-all">
+          Đăng xuất
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-1">
+
+    <!-- 1. LOGIN SECTION (Shown when not authenticated) -->
+    <section id="adminLoginSection" class="max-w-md mx-auto my-12">
+      <div class="p-8 rounded-3xl bg-slate-800/90 border border-slate-700/80 shadow-2xl backdrop-blur">
+        <div class="text-center mb-6">
+          <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-2xl flex items-center justify-center mx-auto mb-3">
+            🔒
+          </div>
+          <h2 class="text-2xl font-bold text-white">Đăng Nhập Quản Trị</h2>
+          <p class="text-xs text-slate-400 mt-1">Vui lòng nhập mật khẩu quản trị viên để tiếp tục</p>
+        </div>
+
+        <form id="adminLoginForm" class="space-y-4">
+          <div>
+            <label for="adminPasswordInput" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Mật khẩu Admin:
+            </label>
+            <input 
+              type="password" 
+              id="adminPasswordInput" 
+              placeholder="Nhập mật khẩu (mặc định: admin123)" 
+              required
+              class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+            >
+          </div>
+
+          <div id="loginErrorMsg" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl"></div>
+
+          <button 
+            type="submit" 
+            class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition-all"
+          >
+            Đăng Nhập Ngay
+          </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-slate-700/50 text-center">
+          <p class="text-[11px] text-slate-500">Mật khẩu mặc định khởi tạo: <span class="text-indigo-400 font-mono font-bold">admin123</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ADMIN DASHBOARD & MANAGEMENT (Shown when authenticated) -->
+    <section id="adminDashboardSection" class="hidden space-y-6">
+
+      <!-- Share Player Link Banner -->
+      <div class="p-5 rounded-3xl bg-gradient-to-r from-indigo-950/80 via-slate-800/90 to-purple-950/80 border border-indigo-500/30 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl backdrop-blur">
+        <div class="flex items-center gap-3.5 w-full md:w-auto">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 text-2xl flex items-center justify-center shrink-0 border border-indigo-500/30 shadow-md">
+            🔗
+          </div>
+          <div>
+            <h3 class="font-extrabold text-white text-base flex items-center gap-2">
+              Link Tham Gia Cho Người Chơi
+              <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">Đang hoạt động</span>
+            </h3>
+            <p class="text-xs text-slate-400">Gửi link này cho bạn bè hoặc quét mã QR bằng điện thoại để vào chơi ngay</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <input 
+            type="text" 
+            id="sharePlayerLinkInput" 
+            readonly 
+            class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-indigo-300 font-mono text-xs md:text-sm w-full md:w-72 focus:outline-none select-all"
+          >
+          <button 
+            id="copyPlayerLinkBtn" 
+            class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs md:text-sm shrink-0 transition-all flex items-center gap-1.5 shadow-md shadow-indigo-600/30 active:scale-95"
+          >
+            📋 Sao chép
+          </button>
+          <button 
+            id="openQrCodeModalBtn" 
+            class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs md:text-sm shrink-0 border border-slate-700 transition-all flex items-center gap-1.5 active:scale-95"
+            title="Tạo mã QR cho điện thoại quét"
+          >
+            📱 Mã QR
+          </button>
+        </div>
+      </div>
+
+      <!-- Metrics Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/70">
+          <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Tổng câu hỏi</span>
+            <span class="text-lg">📚</span>
+          </div>
+          <div id="statTotalQuestions" class="text-2xl md:text-3xl font-black text-white">0</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/70">
+          <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Lượt người chơi</span>
+            <span class="text-lg">👥</span>
+          </div>
+          <div id="statTotalPlays" class="text-2xl md:text-3xl font-black text-indigo-400">0</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/70">
+          <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Điểm trung bình</span>
+            <span class="text-lg">📊</span>
+          </div>
+          <div id="statAvgScore" class="text-2xl md:text-3xl font-black text-emerald-400">0</div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700/70">
+          <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+            <span>Top 1 Kỷ lục</span>
+            <span class="text-lg">👑</span>
+          </div>
+          <div id="statTopPlayer" class="text-sm md:text-base font-bold text-amber-300 truncate">Chưa có</div>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-3">
+        <div class="flex items-center gap-2">
+          <button id="tabQuestionsBtn" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-md transition-all">
+            📝 Quản lý câu hỏi
+          </button>
+          <button id="tabLeaderboardBtn" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-medium text-sm transition-all">
+            🏆 Bảng xếp hạng & Lịch sử
+          </button>
+          <button id="tabSettingsBtn" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-medium text-sm transition-all">
+            ⚙️ Cài đặt
+          </button>
+        </div>
+
+        <!-- Action Button -->
+        <button id="openAddModalBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md shadow-emerald-600/30 flex items-center gap-1.5 transition-all">
+          <span>+ Thêm Câu Hỏi Mới</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: QUESTIONS MANAGEMENT -->
+      <div id="tabQuestionsContent" class="space-y-4">
+        <!-- Search and Filter Bar -->
+        <div class="flex items-center justify-between gap-3 bg-slate-800/60 p-3 rounded-2xl border border-slate-700/60">
+          <div class="relative flex-1">
+            <input 
+              type="text" 
+              id="searchQuestionInput" 
+              placeholder="🔍 Tìm kiếm nội dung câu hỏi..." 
+              class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+          </div>
+          <div class="text-xs text-slate-400 shrink-0">
+            Tổng cộng: <span id="filteredQuestionCount" class="font-bold text-white">0</span> câu
+          </div>
+        </div>
+
+        <!-- Questions List Container -->
+        <div id="questionsList" class="space-y-3.5">
+          <div class="text-center py-12 text-slate-400">Đang tải danh sách câu hỏi...</div>
+        </div>
+      </div>
+
+      <!-- TAB 2: LEADERBOARD MANAGEMENT -->
+      <div id="tabLeaderboardContent" class="hidden space-y-4">
+        <div class="flex items-center justify-between bg-slate-800/60 p-4 rounded-2xl border border-slate-700/60">
+          <div>
+            <h3 class="font-bold text-white text-base">Lịch Sử Người Chơi</h3>
+            <p class="text-xs text-slate-400">Dữ liệu kết quả các lượt chơi đã nộp</p>
+          </div>
+          <button id="clearLeaderboardBtn" class="px-3.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold transition-all">
+            🗑️ Xóa sạch bảng xếp hạng
+          </button>
+        </div>
+
+        <div id="adminLeaderboardList" class="space-y-2.5">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- TAB 3: SETTINGS -->
+      <div id="tabSettingsContent" class="hidden max-w-xl mx-auto space-y-6">
+        <div class="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/70">
+          <h3 class="font-bold text-base text-white mb-2">Đổi Mật Khẩu Quản Trị</h3>
+          <p class="text-xs text-slate-400 mb-4">Thay đổi mật khẩu đăng nhập vào trang quản trị viên này.</p>
+          
+          <form id="changePasswordForm" class="space-y-3.5">
+            <div>
+              <label class="block text-xs text-slate-300 mb-1">Mật khẩu mới (tối thiểu 4 ký tự):</label>
+              <input 
+                type="password" 
+                id="newPasswordInput" 
+                required 
+                minlength="4" 
+                placeholder="Nhập mật khẩu mới..." 
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+            </div>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-all shadow-md">
+              Lưu Mật Khẩu Mới
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- MODAL: ADD / EDIT QUESTION -->
+    <div id="questionModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-slate-800 border border-slate-700 rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        
+        <!-- Modal Header -->
+        <div class="p-5 border-b border-slate-700/70 flex items-center justify-between">
+          <h3 id="modalTitle" class="font-extrabold text-lg text-white">Thêm Câu Hỏi Mới</h3>
+          <button id="closeModalBtn" class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center justify-center font-bold">
+            ✕
+          </button>
+        </div>
+
+        <!-- Modal Form -->
+        <form id="questionForm" class="p-6 overflow-y-auto flex-1 space-y-4">
+          <input type="hidden" id="editingQuestionId" value="">
+
+          <!-- Question Text -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Nội dung câu hỏi <span class="text-rose-400">*</span>
+            </label>
+            <textarea 
+              id="inputQuestionText" 
+              rows="3" 
+              required
+              placeholder="Ví dụ: Đỉnh núi Fansipan nằm ở độ cao bao nhiêu mét?" 
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            ></textarea>
+          </div>
+
+          <!-- Question Image (Optional) -->
+          <div class="space-y-2 p-3.5 rounded-2xl bg-slate-900/60 border border-slate-700/80">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                🖼️ Hình ảnh minh họa cho câu hỏi (Tùy chọn)
+              </label>
+              <button type="button" id="removeImageBtn" class="hidden text-xs text-rose-400 hover:text-rose-300 font-medium">
+                ✕ Xóa ảnh
+              </button>
+            </div>
+
+            <!-- Upload or URL inputs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Cách 1: Chọn ảnh từ máy tính (PNG, JPG, WebP)</label>
+                <input 
+                  type="file" 
+                  id="imageFileInput" 
+                  accept="image/*"
+                  class="block w-full text-xs text-slate-400 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600/30 file:text-indigo-200 hover:file:bg-indigo-600/40 cursor-pointer"
+                >
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Cách 2: Hoặc dán đường dẫn ảnh (URL online)</label>
+                <input 
+                  type="url" 
+                  id="imageUrlInput" 
+                  placeholder="https://example.com/image.jpg"
+                  class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+              </div>
+            </div>
+
+            <!-- Image Preview Box -->
+            <div id="imagePreviewContainer" class="hidden mt-2 pt-2 border-t border-slate-800">
+              <div class="text-[11px] text-slate-400 mb-1">Xem trước ảnh minh họa:</div>
+              <div class="relative inline-block max-w-xs max-h-48 overflow-hidden rounded-xl border border-slate-700 bg-slate-950">
+                <img id="imagePreview" src="" alt="Xem trước ảnh" class="max-h-44 w-auto object-contain mx-auto rounded-lg">
+              </div>
+            </div>
+          </div>
+
+          <!-- Options Grid -->
+          <div class="space-y-3">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              4 Phương án đáp án & Chọn đáp án đúng <span class="text-rose-400">*</span>:
+            </label>
+
+            <!-- Option A -->
+            <div class="flex items-center gap-2.5">
+              <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                <input type="radio" name="correctOptionRadio" value="A" required class="w-4 h-4 text-emerald-500 focus:ring-emerald-500">
+                <span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 text-xs font-bold flex items-center justify-center border border-rose-500/40">A</span>
+              </label>
+              <input 
+                type="text" 
+                id="inputOptionA" 
+                required 
+                placeholder="Nội dung đáp án A..." 
+                class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+            </div>
+
+            <!-- Option B -->
+            <div class="flex items-center gap-2.5">
+              <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                <input type="radio" name="correctOptionRadio" value="B" required class="w-4 h-4 text-emerald-500 focus:ring-emerald-500">
+                <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 text-xs font-bold flex items-center justify-center border border-blue-500/40">B</span>
+              </label>
+              <input 
+                type="text" 
+                id="inputOptionB" 
+                required 
+                placeholder="Nội dung đáp án B..." 
+                class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+            </div>
+
+            <!-- Option C -->
+            <div class="flex items-center gap-2.5">
+              <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                <input type="radio" name="correctOptionRadio" value="C" required class="w-4 h-4 text-emerald-500 focus:ring-emerald-500">
+                <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center justify-center border border-amber-500/40">C</span>
+              </label>
+              <input 
+                type="text" 
+                id="inputOptionC" 
+                required 
+                placeholder="Nội dung đáp án C..." 
+                class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+            </div>
+
+            <!-- Option D -->
+            <div class="flex items-center gap-2.5">
+              <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                <input type="radio" name="correctOptionRadio" value="D" required class="w-4 h-4 text-emerald-500 focus:ring-emerald-500">
+                <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center justify-center border border-emerald-500/40">D</span>
+              </label>
+              <input 
+                type="text" 
+                id="inputOptionD" 
+                required 
+                placeholder="Nội dung đáp án D..." 
+                class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+            </div>
+            <p class="text-[11px] text-slate-400">💡 Chọn ô tròn tương ứng với phương án là đáp án chính xác.</p>
+          </div>
+
+          <!-- Points & Explanation -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Điểm số nhận được:</label>
+              <input 
+                type="number" 
+                id="inputPoints" 
+                value="10" 
+                min="1" 
+                max="100" 
+                class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Giải thích đáp án (tùy chọn):</label>
+              <input 
+                type="text" 
+                id="inputExplanation" 
+                placeholder="Hiện cho người chơi sau khi làm câu này..." 
+                class="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+            </div>
+          </div>
+
+          <!-- Modal Action Buttons -->
+          <div class="pt-4 border-t border-slate-700/60 flex items-center justify-end gap-3">
+            <button type="button" id="cancelModalBtn" class="px-5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-semibold transition-all">
+              Hủy
+            </button>
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-md shadow-indigo-600/30 transition-all">
+              Lưu Câu Hỏi
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <!-- MODAL: QR CODE FOR MOBILE PLAYERS -->
+    <div id="qrCodeModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-slate-800 border border-slate-700 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl animate-in">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-white text-base flex items-center gap-2">
+            <span>📱</span> Quét Mã Vào Chơi
+          </h3>
+          <button id="closeQrModalBtn" class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center justify-center font-bold">✕</button>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Dùng ứng dụng Camera hoặc Zalo trên điện thoại để quét mã bên dưới:</p>
+        
+        <div class="bg-white p-4 rounded-2xl inline-block shadow-lg mx-auto mb-4">
+          <div id="qrcodeCanvas"></div>
+        </div>
+
+        <div id="qrCodeUrlDisplay" class="text-xs text-indigo-300 font-mono break-all p-2 bg-slate-900 rounded-xl border border-slate-700 mb-4"></div>
+
+        <button id="closeQrBottomBtn" class="w-full py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold transition-all">
+          Đóng
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+    Hệ Thống Quản Trị Men's Day RWN • Phiên bản 1.0
+  </footer>
+
+  <!-- Admin Script -->
+  <script src="/js/admin.js"></script>
+</body>
+</html>
