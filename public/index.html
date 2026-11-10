@@ -28,10 +28,14 @@
           🔊
         </button>
 
-        <!-- Leaderboard Button -->
-        <button id="headerLeaderboardBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-500/30 font-medium text-xs md:text-sm transition-all shadow-sm">
-          🏆 Bảng xếp hạng
-        </button>
+        <!-- Admin Portal Link -->
+        <a href="/admin" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-indigo-200 border border-indigo-500/30 font-medium text-sm transition-all shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          Trang Admin
+        </a>
       </div>
     </div>
   </header>
@@ -39,32 +43,101 @@
   <!-- Main Container -->
   <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-1 flex flex-col justify-center">
 
-    <!-- SCREEN 1: GAMEPLAY (VÀO THẲNG GIAO DIỆN CHƠI) -->
-    <section id="gameplayScreen" class="w-full">
-      <!-- Greeting Banner -->
-      <div class="mb-4 text-center">
-        <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-          🎉 Chúc Mừng Ngày Men's Day RWN!
-        </span>
-      </div>
+    <!-- SCREEN 1: WELCOME & START -->
+    <section id="welcomeScreen" class="w-full">
+      <div class="relative overflow-hidden rounded-3xl bg-slate-800/80 border border-slate-700/60 p-6 md:p-10 shadow-2xl backdrop-blur-xl">
+        <div class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
+        <div class="text-center max-w-xl mx-auto space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
+            🎉 Chúc Mừng Ngày Quốc Tế Nam Giới
+          </div>
+          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Chúc mừng ngày <br>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">
+              Men's Day RWN! 🎉
+            </span>
+          </h1>
+          <p class="text-slate-400 text-sm md:text-base">
+            Cùng tham gia trả lời các câu hỏi trắc nghiệm thú vị, tích lũy điểm số và ghi tên mình lên bảng vàng vinh danh!
+          </p>
+        </div>
+
+        <!-- Start Form -->
+        <form id="startForm" class="mt-8 max-w-md mx-auto space-y-5">
+          <div>
+            <label for="playerNameInput" class="block text-sm font-medium text-slate-300 mb-1.5">
+              Tên / Biệt danh của bạn:
+            </label>
+            <input 
+              type="text" 
+              id="playerNameInput" 
+              placeholder="Ví dụ: Hoàng Long, Minh Hương..." 
+              required
+              maxlength="30"
+              class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner text-base"
+            >
+          </div>
+
+          <!-- Quiz Options -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="questionLimitSelect" class="block text-xs font-medium text-slate-400 mb-1">
+                Số lượng câu:
+              </label>
+              <select id="questionLimitSelect" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="5">5 câu (Nhanh)</option>
+                <option value="10" selected>10 câu (Tiêu chuẩn)</option>
+                <option value="0">Tất cả câu hỏi</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="timerToggleSelect" class="block text-xs font-medium text-slate-400 mb-1">
+                Thời gian mỗi câu:
+              </label>
+              <select id="timerToggleSelect" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="15" selected>15 giây (Kịch tính)</option>
+                <option value="30">30 giây (Thư thả)</option>
+                <option value="0">Không giới hạn</option>
+              </select>
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:via-purple-700 hover:to-pink-600 text-white font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <span>Bắt Đầu Ngay</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Leaderboard Preview Toggle -->
+        <div class="mt-8 pt-6 border-t border-slate-700/60 flex justify-center">
+          <button id="viewLeaderboardBtn" class="text-sm font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 transition-colors">
+            🏆 Xem Bảng Xếp Hạng Top Người Chơi
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: GAMEPLAY -->
+    <section id="gameplayScreen" class="w-full hidden">
       <!-- Game Status Bar -->
-      <div class="flex items-center justify-between gap-3 mb-4 bg-slate-800/80 p-3.5 md:p-4 rounded-2xl border border-slate-700/60 backdrop-blur">
-        <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center border border-indigo-500/30 shrink-0">
+      <div class="flex items-center justify-between gap-4 mb-4 bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60 backdrop-blur">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center border border-indigo-500/30">
             <span id="playerAvatarInitial">U</span>
           </div>
           <div>
-            <input 
-              type="text" 
-              id="displayPlayerNameInput" 
-              placeholder="Nhập tên của bạn..." 
-              maxlength="25"
-              class="bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-lg px-2.5 py-1 text-xs md:text-sm font-bold text-white placeholder-slate-500 focus:outline-none w-32 md:w-48 transition-all"
-            >
-            <div class="text-[11px] text-indigo-400 font-semibold flex items-center gap-1 mt-0.5">
+            <div id="displayPlayerName" class="font-bold text-sm text-white truncate max-w-[140px] md:max-w-xs">Người chơi</div>
+            <div class="text-xs text-indigo-400 font-semibold flex items-center gap-1">
               Điểm: <span id="currentScore">0</span>
-              <span id="streakBadge" class="hidden ml-1 px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">🔥 x<span id="streakCount">1</span></span>
+              <span id="streakBadge" class="hidden ml-2 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">🔥 x<span id="streakCount">1</span></span>
             </div>
           </div>
         </div>

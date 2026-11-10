@@ -113,23 +113,25 @@ app.get('/api/admin/questions', requireAdmin, (req, res) => {
 app.post('/api/admin/upload-image', requireAdmin, (req, res) => {
   try {
     const { base64Data } = req.body;
-    if (!base64Data) {
+    if (!base64Data || typeof base64Data !== 'string') {
       return res.status(400).json({ success: false, message: 'Dữ liệu ảnh không hợp lệ' });
     }
 
-    const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
+    const commaIndex = base64Data.indexOf(',');
+    if (commaIndex === -1) {
       return res.status(400).json({ success: false, message: 'Định dạng ảnh không hợp lệ' });
     }
 
-    const mimeType = matches[1];
-    const dataBuffer = Buffer.from(matches[2], 'base64');
+    const meta = base64Data.slice(0, commaIndex).toLowerCase();
+    const rawBase64 = base64Data.slice(commaIndex + 1).replace(/\s/g, '');
+    const dataBuffer = Buffer.from(rawBase64, 'base64');
 
     let ext = 'jpg';
-    if (mimeType.includes('png')) ext = 'png';
-    else if (mimeType.includes('gif')) ext = 'gif';
-    else if (mimeType.includes('webp')) ext = 'webp';
-    else if (mimeType.includes('svg')) ext = 'svg';
+    if (meta.includes('png')) ext = 'png';
+    else if (meta.includes('gif')) ext = 'gif';
+    else if (meta.includes('webp')) ext = 'webp';
+    else if (meta.includes('svg')) ext = 'svg';
+    else if (meta.includes('jpeg')) ext = 'jpg';
 
     const filename = `img_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
     const filePath = path.join(uploadDir, filename);

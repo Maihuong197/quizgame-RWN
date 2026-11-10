@@ -470,8 +470,8 @@ imageFileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  if (file.size > 5 * 1024 * 1024) {
-    alert('Dung lượng ảnh tối đa là 5MB!');
+  if (file.size > 8 * 1024 * 1024) {
+    alert('Dung lượng ảnh tối đa là 8MB!');
     imageFileInput.value = '';
     return;
   }
@@ -479,31 +479,33 @@ imageFileInput.addEventListener('change', async (e) => {
   const reader = new FileReader();
   reader.onload = async () => {
     const base64Data = reader.result;
+    // Hiển thị xem trước ngay lập tức
+    imagePreview.src = base64Data;
+    imagePreviewContainer.classList.remove('hidden');
+    removeImageBtn.classList.remove('hidden');
+    currentUploadedImageUrl = base64Data;
+
     try {
       const data = await authFetch('/api/admin/upload-image', {
         method: 'POST',
         body: { base64Data }
       });
 
-      if (data.success && data.imageUrl) {
+      if (data && data.success && data.imageUrl) {
         currentUploadedImageUrl = data.imageUrl;
         imageUrlInput.value = data.imageUrl;
-        imagePreview.src = data.imageUrl;
-        imagePreviewContainer.classList.remove('hidden');
-        removeImageBtn.classList.remove('hidden');
-      } else {
-        alert(data.message || 'Lỗi tải ảnh lên');
       }
     } catch (err) {
-      console.error(err);
-      alert('Không thể tải ảnh lên máy chủ');
+      console.warn('Lưu ảnh bằng file thất bại, chuyển sang lưu base64 trực tiếp:', err);
+      // Fallback giữ nguyên base64Data để câu hỏi vẫn có ảnh 100%
+      currentUploadedImageUrl = base64Data;
     }
   };
   reader.readAsDataURL(file);
 });
 
-// Image URL typed
-imageUrlInput.addEventListener('input', () => {
+// Image URL typed or pasted
+function handleUrlChange() {
   const url = imageUrlInput.value.trim();
   if (url) {
     currentUploadedImageUrl = url;
@@ -512,10 +514,14 @@ imageUrlInput.addEventListener('input', () => {
     removeImageBtn.classList.remove('hidden');
   } else {
     currentUploadedImageUrl = '';
+    imagePreview.src = '';
     imagePreviewContainer.classList.add('hidden');
     removeImageBtn.classList.add('hidden');
   }
-});
+}
+imageUrlInput.addEventListener('input', handleUrlChange);
+imageUrlInput.addEventListener('change', handleUrlChange);
+imageUrlInput.addEventListener('paste', () => setTimeout(handleUrlChange, 100));
 
 // Remove image
 removeImageBtn.addEventListener('click', () => {
