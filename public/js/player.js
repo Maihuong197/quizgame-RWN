@@ -450,24 +450,24 @@ function displayResults(result) {
   accuracyVal.textContent = `${result.percentage}%`;
   timeSpentVal.textContent = `${result.timeSpent}s`;
 
-  // Performance badges
+  // Performance badges & title
+  resultTitle.textContent = 'Chị em chúc các anh team RWN mạnh khoẻ, vui vẻ nhé !';
+
   if (result.percentage >= 80) {
     resultBadgeIcon.textContent = '🌟';
-    resultTitle.textContent = 'Xuất Sắc Vượt Trội!';
-    resultSubtitle.textContent = `Tuyệt vời ${result.playerName}, bạn nắm vững kiến thức rất chắc chắn!`;
+    resultSubtitle.textContent = `Tuyệt vời ${result.playerName}! Kết quả thi đấu đỉnh cao với ${result.correctCount}/${result.totalQuestions} câu đúng (${result.totalScore} điểm)!`;
     triggerConfetti();
     sounds.playVictory();
   } else if (result.percentage >= 50) {
     resultBadgeIcon.textContent = '🎉';
-    resultTitle.textContent = 'Rất Tốt!';
-    resultSubtitle.textContent = `Chúc mừng ${result.playerName}, bạn đã hoàn thành bài thi với kết quả đáng khen!`;
+    resultSubtitle.textContent = `Chúc mừng ${result.playerName} đã hoàn thành xuất sắc thử thách với ${result.correctCount}/${result.totalQuestions} câu đúng!`;
     triggerConfetti();
     sounds.playVictory();
   } else {
     resultBadgeIcon.textContent = '💪';
-    resultTitle.textContent = 'Cố Lên Nhé!';
-    resultSubtitle.textContent = `Đừng nản lòng ${result.playerName}, hãy xem lại đáp án và thử lại vòng mới nhé!`;
-    sounds.playCorrect();
+    resultSubtitle.textContent = `Chúc mừng ${result.playerName} đã hoàn thành bài thi! Cảm ơn anh đã nhiệt tình tham gia cùng team!`;
+    triggerConfetti();
+    sounds.playVictory();
   }
 
   // Render Detailed Review List
