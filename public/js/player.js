@@ -452,23 +452,17 @@ function displayResults(result) {
 
   // Performance badges & title
   resultTitle.textContent = 'Chị em chúc các anh team RWN mạnh khoẻ, vui vẻ nhé !';
+  resultSubtitle.textContent = `Chúc a ${result.playerName} ngày men's day cười haha lên nào !`;
 
   if (result.percentage >= 80) {
     resultBadgeIcon.textContent = '🌟';
-    resultSubtitle.textContent = `Tuyệt vời ${result.playerName}! Kết quả thi đấu đỉnh cao với ${result.correctCount}/${result.totalQuestions} câu đúng (${result.totalScore} điểm)!`;
-    triggerConfetti();
-    sounds.playVictory();
   } else if (result.percentage >= 50) {
     resultBadgeIcon.textContent = '🎉';
-    resultSubtitle.textContent = `Chúc mừng ${result.playerName} đã hoàn thành xuất sắc thử thách với ${result.correctCount}/${result.totalQuestions} câu đúng!`;
-    triggerConfetti();
-    sounds.playVictory();
   } else {
     resultBadgeIcon.textContent = '💪';
-    resultSubtitle.textContent = `Chúc mừng ${result.playerName} đã hoàn thành bài thi! Cảm ơn anh đã nhiệt tình tham gia cùng team!`;
-    triggerConfetti();
-    sounds.playVictory();
   }
+  triggerConfetti();
+  sounds.playVictory();
 
   // Render Detailed Review List
   renderReviewList(result.detailedResults);
