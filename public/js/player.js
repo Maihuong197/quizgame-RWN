@@ -122,17 +122,13 @@ let gameState = {
 };
 
 // DOM Elements
-const welcomeScreen = document.getElementById('welcomeScreen');
 const gameplayScreen = document.getElementById('gameplayScreen');
 const resultsScreen = document.getElementById('resultsScreen');
-const startForm = document.getElementById('startForm');
-const playerNameInput = document.getElementById('playerNameInput');
-const questionLimitSelect = document.getElementById('questionLimitSelect');
-const timerToggleSelect = document.getElementById('timerToggleSelect');
 const soundToggleBtn = document.getElementById('soundToggleBtn');
+const headerLeaderboardBtn = document.getElementById('headerLeaderboardBtn');
 
 // Gameplay Elements
-const displayPlayerName = document.getElementById('displayPlayerName');
+const displayPlayerNameInput = document.getElementById('displayPlayerNameInput');
 const playerAvatarInitial = document.getElementById('playerAvatarInitial');
 const currentScoreEl = document.getElementById('currentScore');
 const streakBadge = document.getElementById('streakBadge');
@@ -186,32 +182,40 @@ soundToggleBtn.addEventListener('click', () => {
 });
 soundToggleBtn.textContent = sounds.enabled ? '🔊' : '🔇';
 
-// Initialize pre-saved player name
-const savedName = localStorage.getItem('quiz_player_name');
-if (savedName && playerNameInput) {
-  playerNameInput.value = savedName;
+// Header Leaderboard click
+if (headerLeaderboardBtn) {
+  headerLeaderboardBtn.addEventListener('click', openLeaderboard);
+}
+
+// Player name input change
+if (displayPlayerNameInput) {
+  displayPlayerNameInput.addEventListener('input', (e) => {
+    const name = e.target.value.trim();
+    gameState.playerName = name || 'Người chơi';
+    localStorage.setItem('quiz_player_name', name);
+    playerAvatarInitial.textContent = (name.charAt(0) || 'U').toUpperCase();
+  });
 }
 
 // -------------------------------------------------------------
-// START GAME
+// START GAME TRỰC TIẾP (VÀO LINK LÀ CHƠI LUÔN)
 // -------------------------------------------------------------
-startForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = playerNameInput.value.trim();
-  if (!name) return;
+async function startDirectGame() {
+  const savedName = localStorage.getItem('quiz_player_name') || 'Người chơi';
+  gameState.playerName = savedName;
+  gameState.timerSeconds = 0; // Chơi thoải mái không giới hạn thời gian
 
-  localStorage.setItem('quiz_player_name', name);
-  gameState.playerName = name;
-  gameState.timerSeconds = parseInt(timerToggleSelect.value, 10);
-
-  const limit = questionLimitSelect.value;
+  if (displayPlayerNameInput) {
+    displayPlayerNameInput.value = savedName !== 'Người chơi' ? savedName : '';
+    playerAvatarInitial.textContent = (savedName.charAt(0) || 'U').toUpperCase();
+  }
 
   try {
-    const res = await fetch(`/api/play/questions?limit=${limit}`);
+    const res = await fetch('/api/play/questions');
     const data = await res.json();
 
     if (!data.success || !data.questions || data.questions.length === 0) {
-      alert('Chưa có câu hỏi nào trong hệ thống! Vui lòng nhờ Admin thêm câu hỏi.');
+      questionText.textContent = 'Chưa có câu hỏi nào trong hệ thống! Vui lòng nhờ Admin thêm câu hỏi.';
       return;
     }
 
@@ -222,22 +226,18 @@ startForm.addEventListener('submit', async (e) => {
     gameState.streak = 0;
     gameState.gameStartTime = Date.now();
 
-    // Setup player view
-    displayPlayerName.textContent = name;
-    playerAvatarInitial.textContent = name.charAt(0).toUpperCase();
     totalQuestionsNum.textContent = gameState.questions.length;
 
-    // Switch screen
-    welcomeScreen.classList.add('hidden');
+    // Switch screen directly to gameplay
     resultsScreen.classList.add('hidden');
     gameplayScreen.classList.remove('hidden');
 
-    loadQuestion(gameState.currentIndex);
+    loadQuestion(0);
   } catch (err) {
     console.error(err);
-    alert('Không thể kết nối đến máy chủ. Vui lòng thử lại!');
+    questionText.textContent = 'Không thể kết nối đến máy chủ. Vui lòng tải lại trang!';
   }
-});
+}
 
 // -------------------------------------------------------------
 // LOAD & DISPLAY QUESTION
@@ -409,6 +409,18 @@ async function finishQuiz() {
   clearInterval(gameState.timerInterval);
   gameState.totalTimeSpent = Math.max(1, Math.round((Date.now() - gameState.gameStartTime) / 1000));
 
+  let name = (displayPlayerNameInput ? displayPlayerNameInput.value.trim() : '') || gameState.playerName;
+  if (!name || name === 'Người chơi') {
+    const prompted = prompt('Nhập tên hoặc biệt danh của bạn để ghi danh lên Bảng Xếp Hạng:');
+    if (prompted && prompted.trim()) {
+      name = prompted.trim();
+    } else {
+      name = 'Người chơi';
+    }
+  }
+  gameState.playerName = name;
+  localStorage.setItem('quiz_player_name', name);
+
   try {
     const res = await fetch('/api/play/submit', {
       method: 'POST',
@@ -578,7 +590,7 @@ toggleReviewBtn.addEventListener('click', () => {
 playAgainBtn.addEventListener('click', () => {
   resultsScreen.classList.add('hidden');
   reviewContainer.classList.add('hidden');
-  welcomeScreen.classList.remove('hidden');
+  startDirectGame();
 });
 
 // -------------------------------------------------------------
@@ -636,10 +648,10 @@ function closeLeaderboard() {
   leaderboardModal.classList.add('hidden');
 }
 
-viewLeaderboardBtn.addEventListener('click', openLeaderboard);
-showLeaderboardFromResultsBtn.addEventListener('click', openLeaderboard);
-closeLeaderboardModalBtn.addEventListener('click', closeLeaderboard);
-closeLeaderboardBottomBtn.addEventListener('click', closeLeaderboard);
+if (viewLeaderboardBtn) viewLeaderboardBtn.addEventListener('click', openLeaderboard);
+if (showLeaderboardFromResultsBtn) showLeaderboardFromResultsBtn.addEventListener('click', openLeaderboard);
+if (closeLeaderboardModalBtn) closeLeaderboardModalBtn.addEventListener('click', closeLeaderboard);
+if (closeLeaderboardBottomBtn) closeLeaderboardBottomBtn.addEventListener('click', closeLeaderboard);
 
 leaderboardModal.addEventListener('click', (e) => {
   if (e.target === leaderboardModal) closeLeaderboard();
@@ -655,3 +667,6 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+// Auto start game directly on load!
+startDirectGame();
